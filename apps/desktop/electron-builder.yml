@@ -1,0 +1,31 @@
+appId: com.patch.desktop
+productName: PATCH
+# better-sqlite3 13 ships an N-API win32-x64 prebuild; do not invoke node-gyp during packaging.
+npmRebuild: false
+artifactName: PATCH-${version}-${arch}.${ext}
+directories:
+  output: ../../release
+files:
+  - dist/**/*
+  - package.json
+extraResources:
+  - from: resources/windows-bridge
+    to: windows-bridge
+  - from: ../../adapters/chrome/dist
+    to: adapters/chrome
+  - from: ../../adapters/photoshop
+    to: adapters/photoshop
+asarUnpack:
+  - node_modules/better-sqlite3/**/*
+win:
+  icon: build/icon.ico
+  target:
+    - target: nsis
+      arch: [x64]
+  executableName: PATCH
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true
+  perMachine: false
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
