@@ -1,231 +1,291 @@
 # PATCH
 
-> **The adaptive AI layer for your computer.**  
-> See anything. Ask anything. Change what you use.
+**An AI agent that works inside the applications on your desktop.**
 
-PATCH is a Windows-first desktop AI application that can understand the active screen when explicitly invoked, reason over semantic application context, and perform controlled actions through deterministic adapters. It is intentionally not a chatbot embedded in Electron: the primary UX is a persistent tray/animated sloth companion plus a global command overlay with screenshot annotation.
+PATCH doesn't just answer questions — it sees your screen, understands application context, and takes controlled actions through the apps you already use. Built for Windows, powered by OpenAI and Gemini, and designed so the AI can never do more than you explicitly allow.
 
-## What is implemented
+<p align="center">
+  <a href="https://www.mediafire.com/file/p1xbs7g9nrsqkwu/PATCH-0.1.1-x64.exe/file"><strong>⬇ Download PATCH 0.1.1 for Windows x64</strong></a>
+  &nbsp;&nbsp;·&nbsp;&nbsp;
+  <a href="https://pixel-forge-ai-hackathon-08.devpost.com/">Devpost</a>
+  &nbsp;&nbsp;·&nbsp;&nbsp;
+  <a href="https://github.com/Omnicode786/PATCH">GitHub</a>
+</p>
 
-- Secure Electron desktop shell, tray, configurable global shortcut, always-available animated sloth companion, transparent capture/annotation overlay and compact result/confirmation UX.
-- Rectangle, freehand, and arrow annotations tied to image-relative coordinates.
-- In-memory screen capture lifecycle with deletion-after-request enabled by default.
-- BYOK OpenAI and Gemini providers; raw keys stay in Electron main and are encrypted with OS-backed Electron `safeStorage`.
-- Provider/model settings, official setup links, real selected-model connection testing, capability-gated model assignment, explicit custom-model mode, and advanced vision/reasoning routing.
-- Structured `PatchPlan` generation, runtime Zod validation, target existence checks, tool/risk validation, permissions, confirmation and execution verification.
-- Native Windows .NET UI Automation sidecar for active-window context, semantic trees and controlled Invoke/Toggle/Value/Selection/Scroll actions.
-- Chrome Manifest V3 companion extension using native messaging, semantic DOM extraction, restricted live-DOM PATCH DSL, undo and persistent site rules.
-- Photoshop UXP companion plugin for document/layer context and a constrained mutation set.
-- SQLite/Drizzle local metadata, structured redacted logging, saved-patch management.
-- Unit policy/DSL/protocol/grounding tests, Gemini provider-schema preflight tests, sloth motion tests, and repository security lint.
+---
+
+## The Problem
+
+You use multiple applications every day — browsers, creative tools, system utilities — and you constantly repeat the same friction:
+
+- **Switching context** between apps to move information around  
+- **Performing repetitive actions** like hiding distracting UI elements on websites you visit daily  
+- **Translating intent into steps** — you know *what* you want, but you have to manually figure out *how* each application exposes it  
+
+Conventional AI chatbots can help you think, but they can't *do* anything. They generate text in a window. They can't see your screen. They don't know what application you're in. They can't click a button, rearrange a webpage, or adjust a Photoshop layer.
+
+**PATCH bridges that gap.** It gives AI the ability to perceive your applications and act through them — but only through explicitly defined, validated, permission-gated capabilities. The AI proposes; PATCH verifies and executes.
+
+---
+
+## How It Works
+
+When you press **Ctrl + Shift + Space**, PATCH activates:
+
+```
+ You describe what you want
+  │
+  ▼
+ PATCH captures context
+  ├─ Active window metadata
+  ├─ Windows UI Automation accessibility tree
+  ├─ Chrome/Edge semantic DOM (via companion extension)
+  └─ Photoshop document & layer tree (via UXP plugin)
+  │
+  ▼
+ Intent classification
+  │  Is this a question, a web modification, or an application action?
+  │
+  ▼
+ AI model plans structured actions
+  │  Using only the tools that are currently available and eligible
+  │
+  ▼
+ PATCH validates the plan
+  ├─ Every target ID must exist in the captured context
+  ├─ Every tool must be registered and eligible
+  ├─ Confidence must exceed the safety threshold
+  └─ Risk level must match your permission settings
+  │
+  ▼
+ Permission gate
+  │  Mutations require your confirmation by default
+  │
+  ▼
+ Deterministic execution through native adapters
+  │
+  ▼
+ Post-action verification
+     PATCH checks the result before reporting success
+```
+
+### What the AI decides vs. what PATCH decides
+
+| AI Model | PATCH Runtime |
+|----------|--------------|
+| Interprets your goal | Verifies every target ID exists |
+| Classifies the request type | Filters tools by what's actually available |
+| Proposes a sequence of tool actions | Validates arguments against schemas |
+| Estimates confidence | Blocks plans below the confidence threshold |
+| Suggests expected outcomes | Gates execution behind permissions |
+| | Executes through native bridges |
+| | Verifies post-state before reporting success |
+
+The model never receives a shell tool, a code execution tool, or raw JavaScript injection. Screen and DOM content are explicitly marked as **untrusted data, never instructions**.
+
+---
+
+## What PATCH Can Actually Do
+
+### 16 registered tools across 4 application domains:
+
+**Windows UI Automation** — interact with native desktop controls  
+`windows.invoke` · `windows.toggle` · `windows.setValue` · `windows.select` · `windows.scroll`
+
+**Browser (Chrome/Edge)** — modify live web pages with a safe declarative DSL  
+`browser.applyPatch` · `browser.restorePatch` · `browser.savePatch` · `browser.highlight`
+
+**Photoshop** — manipulate layers through the UXP plugin  
+`photoshop.selectLayer` · `photoshop.duplicateLayer` · `photoshop.moveLayer` · `photoshop.resizeLayer` · `photoshop.setOpacity` · `photoshop.setBlendMode`
+
+**Screen** — coordinate-based visual fallback (disabled by default, requires annotation)  
+`screen.click`
+
+### Example: Cleaning up a distracting website
+
+> **You:** *"Hide the sidebar and recommendations on this page"*
+
+1. PATCH detects Chrome is in the foreground and retrieves semantic DOM elements via the companion extension
+2. The AI classifies this as a `WEB_PATCH` and plans a `browser.applyPatch` using the declarative DSL with `HIDE` operations targeting the sidebar and recommendation containers
+3. PATCH validates that the referenced DOM elements exist in the captured context
+4. After your confirmation, the Chrome extension applies the changes to the live page
+5. PATCH verifies the patch was applied and offers to save it as a persistent site rule
+
+### Example: Toggling a Windows setting
+
+> **You:** *"Turn on dark mode in this settings panel"*
+
+1. PATCH reads the Windows UI Automation accessibility tree of the active window
+2. The AI identifies the dark mode toggle control by its UIA properties and plans a `windows.toggle` action
+3. PATCH validates the target ID, confirms the element supports `TogglePattern`, and checks your permissions
+4. After confirmation, the C# bridge toggles the control and verifies the resulting state
+
+---
+
+## What Makes PATCH Different
+
+|  | Traditional AI Chat | PATCH |
+|--|---------------------|-------|
+| **Interaction model** | Conversation in a window | Works inside your existing applications |
+| **Application awareness** | None | Reads accessibility trees, DOM, and layer hierarchies |
+| **Output** | Generates text | Executes validated actions through native adapters |
+| **Safety model** | Trust the user prompt | Every action is schema-validated and permission-gated |
+| **Integrations** | Generic API calls | Purpose-built adapters for Windows, Chrome, and Photoshop |
+| **Provider lock-in** | Usually one provider | Swappable between OpenAI and Gemini with automatic fallback |
+
+---
 
 ## Architecture
 
-```text
-User
-  │
-  ▼
-PATCH Overlay ── prompt + capture + annotations
-  │
-  ▼
-Context Engine
-  ├─ Screen capture
-  ├─ Windows UIA tree
-  ├─ Chrome semantic DOM
-  └─ Photoshop document/layers
-  │
-  ▼
-AI Provider (OpenAI Responses / Gemini GenerateContent)
-  │
-  ▼
-Structured PatchPlan
-  │
-  ├─ Zod schema validation
-  ├─ real-target validation
-  ├─ tool + argument validation
-  ├─ risk + permission policy
-  └─ confirmation gate
-  │
-  ▼
-Tool Registry
-  ├─ Photoshop UXP
-  ├─ Chrome MV3 / PATCH DSL
-  ├─ Windows UI Automation
-  └─ annotation coordinate fallback
-  │
-  ▼
-Execute → observe post-state → verify → report
+```
+PATCH Desktop (Electron)
+│
+├── AI Core
+│   ├── Provider-neutral interfaces & system policy
+│   ├── OpenAI provider (Responses API)
+│   └── Gemini provider (GenerateContent API)
+│
+├── Orchestrator
+│   ├── Context assembly (screen + UIA + DOM + Photoshop)
+│   ├── Intent classification
+│   ├── Plan validation (schemas, targets, confidence, risk)
+│   └── Permission engine & confirmation gate
+│
+├── Tool Registry
+│   └── 16 tools with typed schemas, risk levels, and target prefixes
+│
+├── Security Layer
+│   ├── Permission system with 7 capability scopes
+│   ├── Risk hierarchy (READ_ONLY → REVERSIBLE → SIDE_EFFECT → DESTRUCTIVE)
+│   ├── Credential vault (Windows DPAPI encryption)
+│   └── Secret redaction in logs
+│
+└── Application Adapters
+    ├── Windows Bridge (C#/.NET 8 — UI Automation + Chrome Native Messaging)
+    ├── Chrome Extension (MV3 — semantic DOM extraction + declarative patch DSL)
+    └── Photoshop Plugin (Adobe UXP — layer context + constrained mutations)
 ```
 
-The planner never receives a shell tool or arbitrary JavaScript tool. Observed screen/DOM text is explicitly marked untrusted and cannot redefine system policy.
+### Key Engineering Decisions
 
-## Repository
+**Provider abstraction** — OpenAI and Gemini are interchangeable behind a unified `AIProvider` interface. The system supports automatic fallback routing, per-role model assignment (default, vision, reasoning), and runtime diagnostics that auto-heal stale model configurations.
 
-```text
-apps/
-  desktop/          Electron + React/Vite
-  windows-bridge/   C#/.NET Windows UI Automation + Chrome native host
-adapters/
-  chrome/           Manifest V3 extension
-  photoshop/        Adobe UXP plugin
-packages/
-  ai-core/          provider-neutral AI contracts and planner policy
-  provider-openai/  official OpenAI JS SDK adapter
-  provider-gemini/  official Google GenAI SDK adapter
-  tool-registry/    executable allowlist + validation
-  patch-dsl/        restricted website transformation language
-  protocol/         versioned adapter envelopes
-  schemas/          shared Zod contracts
-  persistence/      SQLite/Drizzle
-  security/         permissions, risk policy, redaction
-  logging/          structured JSONL logs
-  shared/           typed errors and utilities
-docs/
-DECISIONS.md        engineering decision log
-```
+**Restricted tool registry** — The AI cannot invent tools or capabilities. Every tool is explicitly registered with typed argument schemas, target ID prefixes, and risk classifications. Tools are dynamically filtered: `browser.*` tools only appear when Chrome context exists, `windows.*` tools only when a UIA tree is available.
 
-## Requirements
+**Declarative website patch DSL** — Instead of injecting arbitrary JavaScript, browser modifications use a restricted DSL supporting 14 safe operations (`HIDE`, `SHOW`, `MOVE`, `RESIZE`, `RESTYLE`, etc.) with CSS injection safety filters that reject `url()`, `@import`, `expression()`, and `javascript:` patterns.
 
-Development host:
+**Named pipe transport** — The Chrome extension communicates through a per-user Windows named pipe (`patch-browser-bridge-v1`). No TCP port is ever opened for the browser adapter.
 
-- Windows 10/11 for real UIA/runtime testing and final installer packaging.
-- Node.js 22.16+.
-- pnpm 11.21.0 (Corepack is fine).
-- .NET 8 SDK with Windows Desktop targeting support.
-- Chrome/Chromium for the browser companion.
-- Adobe Photoshop with UXP support for the Photoshop companion.
+**Companion window design** — The floating sloth companion window is configured as `focusable: false` to preserve the foreground window's HWND, ensuring UI Automation context captures target the user's actual application rather than PATCH itself.
 
-## Fresh Windows setup
+---
 
-The easiest audited path from this source archive is:
+## Security & Control
 
-```text
-SETUP_PATCH.cmd
-```
+PATCH is designed around the principle that **the AI should never be able to do more than the user has explicitly allowed**.
 
-It invokes `INSTALL_PATCH.ps1`, checks prerequisites, installs dependencies, runs the verification gate, builds the Windows sidecar, creates the NSIS installer and launches it. See `FRESH_INSTALL.md`.
+- **7 permission scopes** control what PATCH can perceive and modify — screen capture, accessibility reading/control, browser modification, Photoshop control, coordinate automation, and confirmation bypass
+- **Coordinate-based clicking is disabled by default** — and even when enabled, the AI never supplies coordinates; it can only click the center of a user-drawn annotation
+- **Credentials are encrypted at rest** using Windows DPAPI via Electron `safeStorage`. If OS encryption is unavailable, the vault fails closed rather than storing plaintext
+- **Confirmation is required for all mutations by default** — with a 120-second expiring confirmation token
+- **Post-action verification** — if an action reports `changed` but cannot verify the result, execution halts immediately
+- **30 strongly-typed error codes** ensure failures are specific and actionable, not generic
+- **Structured JSONL logs** automatically redact API keys, tokens, and secrets before writing
 
-No API key is required for PATCH to launch, stay in the tray, show its animated sloth companion, or open Settings. AI requests are enabled only after the user adds an OpenAI or Gemini key.
+---
 
-This archive includes the real `pnpm-lock.yaml` generated from the successfully resolved Windows dependency graph. Keep release/CI installs frozen (`pnpm install --frozen-lockfile`) and update the lockfile only through an intentional dependency change.
+## Download & Install
 
-## Development
+### For users — try PATCH immediately
 
-Build the Windows sidecar once:
+**[⬇ Download PATCH 0.1.1 — Windows x64 Installer](https://www.mediafire.com/file/p1xbs7g9nrsqkwu/PATCH-0.1.1-x64.exe/file)**
+
+The installer sets up everything you need. After launching:
+
+1. PATCH appears as a **floating sloth companion** and a **system tray icon**
+2. Open **Settings → AI & Adapters** and add your OpenAI or Gemini API key
+3. Press **Ctrl + Shift + Space** to invoke PATCH in any application
+4. Draw annotations on your screen if needed, type your request, and confirm
+
+No API key is required for PATCH to launch. AI features activate once you configure a provider.
+
+> **Alternative:** You can also rebuild the installer from source — the release binaries are available in [`release_binaries/`](./release_binaries/) with a [`stitch-release.ps1`](./release_binaries/stitch-release.ps1) script to reconstruct the full installer.
+
+### For developers — build from source
+
+**Prerequisites:** Windows 10/11 · Node.js ≥ 22.16.0 · pnpm 11.21.0 · .NET 8 SDK
 
 ```powershell
+# Install dependencies
+pnpm install --frozen-lockfile
+
+# Build the Windows UI Automation bridge
 dotnet build .\apps\windows-bridge\Patch.WindowsBridge.csproj
-```
 
-Then:
-
-```powershell
+# Run the full verification suite (lint + typecheck + test + build)
 pnpm verify
+
+# Start in development mode
 pnpm --filter @patch/desktop dev
 ```
 
-Default invoke shortcut: **Ctrl + Shift + Space**.
+### Adapter setup
 
-## Configure an AI provider
+**Chrome extension:** Build all workspaces (`pnpm build`), load `adapters/chrome/dist` as an unpacked extension, and register the native messaging host via the included PowerShell script.
 
-Open **Settings → AI & Adapters**. Add an OpenAI or Gemini API key and test it. The renderer never gets the stored key back. PATCH makes direct local-to-provider API calls.
+**Photoshop plugin:** Load `adapters/photoshop` through Adobe UXP Developer Tool and pair using the code from PATCH Settings → Adapters.
 
-Current provider integration choices are documented in `DECISIONS.md` and should be rechecked against official provider docs when dependencies are upgraded.
+See [`ADAPTER_SETUP.md`](./ADAPTER_SETUP.md) for detailed instructions.
 
-## Chrome adapter
+---
 
-1. Build all workspaces: `pnpm build`.
-2. Open `chrome://extensions`, enable Developer mode, choose **Load unpacked**, and select `adapters/chrome/dist`.
-3. Copy the extension ID.
-4. Register the native host (PowerShell):
+## Technology Stack
 
-```powershell
-.\adapters\chrome\dist\install-native-host.ps1 `
-  -ExtensionId <32-character-extension-id> `
-  -BridgeExe <absolute-path-to-Patch.WindowsBridge.exe>
+| Layer | Technologies |
+|-------|-------------|
+| **Desktop Shell** | Electron · React · Vite · TypeScript |
+| **AI Providers** | OpenAI (Responses API) · Google Gemini (GenerateContent) |
+| **Validation** | Zod (schema contracts + JSON schema generation) |
+| **Windows Integration** | C# · .NET 8 · UI Automation · Chrome Native Messaging |
+| **Browser Adapter** | Chrome Manifest V3 · Content Scripts · Service Worker |
+| **Creative Adapter** | Adobe UXP (Photoshop plugin) |
+| **Persistence** | SQLite · Drizzle ORM · better-sqlite3 |
+| **Build System** | Turborepo · pnpm workspaces |
+| **CI** | GitHub Actions (Windows runner) |
+
+---
+
+## Project Structure
+
+```
+apps/
+  desktop/              Electron main + preload + React renderer
+  windows-bridge/       C#/.NET 8 UI Automation sidecar
+adapters/
+  chrome/               Manifest V3 companion extension
+  photoshop/            Adobe UXP companion plugin
+packages/
+  ai-core/              Provider-neutral AI interfaces & system policy
+  provider-openai/      OpenAI SDK integration
+  provider-gemini/      Gemini SDK integration
+  tool-registry/        Registered tool definitions & execution
+  patch-dsl/            Restricted website transformation DSL
+  protocol/             Versioned adapter communication envelopes
+  schemas/              Shared Zod validation contracts
+  security/             Permissions, risk policy, secret redaction
+  logging/              Structured JSONL logging with auto-redaction
+  persistence/          SQLite/Drizzle local database
+  shared/               Typed errors, branded IDs, utilities
 ```
 
-The desktop listens on a per-user Windows named pipe. Chrome native messaging frames are forwarded by the Windows bridge executable; no local TCP port is exposed for the browser adapter.
+---
 
-## Photoshop adapter
+## Hackathon
 
-1. Open PATCH **Settings → Adapters** and reveal/copy the Photoshop pairing code.
-2. Load `adapters/photoshop` in Adobe UXP Developer Tool during development, or package/sign it for normal distribution.
-3. Open the **PATCH** panel in Photoshop.
-4. Enter the pairing code once. The plugin stores it using UXP secure storage and communicates only with `http://127.0.0.1:49373`.
+PATCH was built for the [**Pixel Forge AI Hackathon**](https://pixel-forge-ai-hackathon-08.devpost.com/) (August 15–22, 2026).
 
-The initial supported mutation set is deliberately small: select, duplicate, translate, scale, opacity and blend mode. It does not expose the entire Photoshop API.
+---
 
-## Security model
+## License
 
-Key properties:
-
-- Renderer isolation and narrow preload IPC.
-- No raw provider-key getter.
-- Fail-closed credential persistence if OS encryption is unavailable.
-- Screen capture only on invocation by default.
-- Screen/DOM content is data, not instructions.
-- Model-generated plans cannot invent target IDs, tools, or risk classifications.
-- No generic shell or JavaScript execution tool.
-- Deterministic adapter priority over coordinate fallback.
-- Confirmation for mutations by default.
-- Post-action verification before reporting success.
-- Redacted metadata logs; no screenshot/provider-secret logging.
-
-Read `docs/THREAT_MODEL.md` for abuse cases and controls, and `AUDIT_REPORT.md` for the 2026-08-16 production audit and corrected-delivery notes.
-
-## Privacy defaults
-
-- Continuous recording: **not implemented / off**.
-- Delete captured screenshot after request: **on**.
-- Screenshot history: **off**.
-- Prompt logging: **off**.
-- Image analytics: **never**.
-- API-key logging: **never**.
-
-## Local storage
-
-`patch.sqlite3` stores preferences, provider metadata (not raw keys), permissions and saved website patches. Encrypted secret material lives separately in the credential vault file managed by Electron main.
-
-## Verification
-
-```powershell
-pnpm lint
-pnpm typecheck
-pnpm test
-pnpm build
-```
-
-Then run Windows adapter/integration checks on Windows. See `docs/VALIDATION.md` for the exact validation status of this delivered archive.
-
-## Windows package
-
-```powershell
-pnpm package:win
-```
-
-This publishes a self-contained x64 Windows sidecar, builds all monorepo workspaces/adapters, and runs Electron Builder to create an NSIS installer under `release/`.
-
-## Known limitations
-
-- V1 is intentionally Windows-first; macOS/Linux adapters are interfaces/roadmap, not fake implementations.
-- Generic `InvokePattern` cannot prove an arbitrary application-specific outcome; PATCH reports it as unverified unless a concrete postcondition exists.
-- Coordinate automation is a low-confidence fallback, requires a real user annotation, is permission-gated off by default, never accepts model-supplied coordinates, and never masquerades as deterministic control.
-- Chrome extension load/signing and Photoshop UXP packaging/signing are deployment steps outside the source archive.
-- Real provider calls require the user’s own key and incur that provider’s usage costs.
-
-## Roadmap
-
-After V1 stability: richer Photoshop operations, explicit Windows app adapters, Firefox/Safari only if product demand warrants them, macOS Accessibility adapter, local-model provider, optional enterprise policy, and signed auto-update distribution.
-
-## Research references
-
-- OpenAI Responses API: https://platform.openai.com/docs/api-reference/responses
-- OpenAI Structured Outputs: https://platform.openai.com/docs/guides/structured-outputs
-- Gemini GenerateContent: https://ai.google.dev/api/generate-content
-- Electron `desktopCapturer`: https://www.electronjs.org/docs/latest/api/desktop-capturer
-- Electron `safeStorage`: https://www.electronjs.org/docs/latest/api/safe-storage
-- Chrome Native Messaging: https://developer.chrome.com/docs/extensions/develop/concepts/native-messaging
-- Chrome Manifest V3: https://developer.chrome.com/docs/extensions/develop/migrate/what-is-mv3
-- Microsoft UI Automation: https://learn.microsoft.com/dotnet/framework/ui-automation/ui-automation-overview
-- Adobe Photoshop UXP: https://developer.adobe.com/photoshop/uxp/
+PATCH is available under the terms specified in [`LICENSE`](./LICENSE).
