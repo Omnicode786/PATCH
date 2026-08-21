@@ -1,0 +1,14 @@
+node_modules/
+dist/
+out/
+coverage/
+*.log
+.env
+.env.*
+!.env.example
+.DS_Store
+Thumbs.db
+apps/windows-bridge/bin/
+apps/windows-bridge/obj/
+release/
+*.zip

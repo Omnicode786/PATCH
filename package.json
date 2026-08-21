@@ -1,0 +1,27 @@
+{
+  "name": "patch",
+  "version": "0.1.1",
+  "private": true,
+  "description": "PATCH \u2014 the adaptive AI layer for your computer",
+  "packageManager": "pnpm@11.21.0",
+  "engines": {
+    "node": ">=22.16.0"
+  },
+  "scripts": {
+    "dev": "turbo run dev --parallel",
+    "build": "turbo run build",
+    "typecheck": "turbo run typecheck",
+    "lint": "node scripts/lint.mjs",
+    "test": "turbo run test",
+    "verify": "pnpm lint && pnpm validate:agentic-browser && pnpm typecheck && pnpm test && pnpm build",
+    "package:win": "pnpm --filter @patch/desktop package:win",
+    "diagnose:gemini": "pnpm --filter @patch/provider-gemini diagnose",
+    "validate:agentic-browser": "node scripts/validate-agentic-browser-runtime.mjs"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "turbo": "2.10.10",
+    "typescript": "7.0.2",
+    "vitest": "4.1.10"
+  }
+}
