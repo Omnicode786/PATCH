@@ -1,0 +1,31 @@
+{
+  "manifest_version": 3,
+  "name": "PATCH Companion",
+  "version": "0.1.0",
+  "description": "Secure semantic DOM and live-page adapter for PATCH.",
+  "permissions": [
+    "nativeMessaging",
+    "storage",
+    "scripting"
+  ],
+  "host_permissions": [
+    "http://*/*",
+    "https://*/*"
+  ],
+  "background": {
+    "service_worker": "service-worker.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "http://*/*",
+        "https://*/*"
+      ],
+      "js": [
+        "content.js"
+      ],
+      "run_at": "document_idle",
+      "all_frames": false
+    }
+  ]
+}

@@ -1,0 +1,7 @@
+{
+  "name": "com.patch.browser",
+  "description": "PATCH Chrome native messaging bridge",
+  "path": "__PATCH_WINDOWS_BRIDGE_EXE__",
+  "type": "stdio",
+  "allowed_origins": ["chrome-extension://__EXTENSION_ID__/"]
+}
