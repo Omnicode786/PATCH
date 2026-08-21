@@ -1,0 +1,22 @@
+{
+  "manifestVersion": 5,
+  "id": "com.patch.photoshop",
+  "name": "PATCH",
+  "version": "0.1.0",
+  "main": "index.html",
+  "host": [{ "app": "PS", "minVersion": "25.0.0" }],
+  "requiredPermissions": {
+    "network": { "domains": ["http://127.0.0.1:49373"] }
+  },
+  "entrypoints": [
+    {
+      "type": "panel",
+      "id": "patchPanel",
+      "label": { "default": "PATCH" },
+      "minimumSize": { "width": 260, "height": 180 },
+      "maximumSize": { "width": 1200, "height": 1200 },
+      "preferredDockedSize": { "width": 300, "height": 320 },
+      "preferredFloatingSize": { "width": 340, "height": 360 }
+    }
+  ]
+}
